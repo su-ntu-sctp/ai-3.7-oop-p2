@@ -1,3 +1,17 @@
+# Lesson: Object-Oriented Programming — Encapsulation, Inheritance, Polymorphism, Abstraction
+
+## Lesson Overview
+This lesson deepens OOP fundamentals by applying the four pillars—encapsulation, inheritance, polymorphism, and abstraction—plus composition. Learners implement access control, constructors, `super`/`this`, `protected`, interfaces vs. abstract classes, method overloading/overriding, and design HAS-A vs. IS-A relationships with concise, practical examples.
+
+## Lesson Objectives
+- Explain and apply the four OOP pillars in Java.
+- Enforce encapsulation with private fields and getters/setters.
+- Use inheritance with `extends`, `super` constructors, and `protected` access.
+- Differentiate method overloading (compile-time) and overriding (runtime).
+- Design abstractions via abstract classes and interfaces (including default methods).
+- Model relationships using composition (HAS-A) vs. inheritance (IS-A).
+- Write small programs that integrate these concepts (e.g., `Person`, `Student`, vehicles).
+
 ## Object Oriented Programming
 
 Object Oriented Programming (OOP) is a programming paradigm that is based on the concept of objects. It is a way of organizing code into objects that have state (attributes) and behavior (methods).
