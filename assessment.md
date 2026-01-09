@@ -1,68 +1,108 @@
 # Assessment / Quiz
 
 ## Overview
-- **Lesson:** [title / module.lesson]
+- **Lesson:** Object-Oriented Programming — Encapsulation, Inheritance, Polymorphism, Abstraction
 - **Format:** 10 questions (mix MCQ / True–False / Short Answer)
 - **Time:** ~10–15 minutes
 - **Scoring:** 1 point each (unless stated)
 
 ## Questions
 
-### Q1 (MCQ)
-[Question?]  
-A. [ ]  
-B. [ ]  
-C. [ ]  
-D. [ ]  
-**Answer:** [A/B/C/D] — [1-line reason]
+### Q1 (True/False)
 
-### Q2 (MCQ)
-[Question?]  
-A. [ ]  
-B. [ ]  
-C. [ ]  
-D. [ ]  
-**Answer:** [A/B/C/D] — [1-line reason]
+Q1: Encapsulation is the bundling of methods and attributes on a single object and hiding fields from public access?
 
-### Q3 (True/False)
-[Statement]  
-**Answer:** [True/False] — [1-line reason]
+A - True
 
-### Q4 (True/False)
-[Statement]  
-**Answer:** [True/False] — [1-line reason]
+B - False
 
-### Q5 (Short Answer)
-[Prompt]  
-**Expected:** [1–2 key points]
+---
 
-### Q6 (Short Answer)
-[Prompt]  
-**Expected:** [1–2 key points]
+Q2: Which keyword is used to inherit from a parent class in Java?
 
-### Q7 (MCQ)
-[Question?]  
-A. [ ]  
-B. [ ]  
-C. [ ]  
-D. [ ]  
-**Answer:** [A/B/C/D] — [1-line reason]
+A - implements
 
-### Q8 (MCQ)
-[Question?]  
-A. [ ]  
-B. [ ]  
-C. [ ]  
-D. [ ]  
-**Answer:** [A/B/C/D] — [1-line reason]
+B - extends
 
-### Q9 (True/False)
-[Statement]  
-**Answer:** [True/False] — [1-line reason]
+C - inherits
 
-### Q10 (Short Answer)
-[Prompt]  
-**Expected:** [1–2 key points]
+D - super
+
+---
+
+Q3: The `super` keyword is used to call the parent class constructor or methods?
+
+A - True
+
+B - False
+
+---
+
+Q4: Which access modifier allows a field to be accessed by child classes but not by other classes?
+
+A - public
+
+B - private
+
+C - protected
+
+D - default
+
+---
+
+Q5: What type of polymorphism is method overloading?
+
+A - Runtime polymorphism
+
+B - Compile-time polymorphism
+
+C - Dynamic polymorphism
+
+D - Interface polymorphism
+
+---
+
+Q6: Method overriding occurs when a child class provides a specific implementation of a method that is already defined in the parent class?
+
+A - True
+
+B - False
+
+---
+
+Q7: Can an abstract class be instantiated directly?
+
+A - Yes
+
+B - No
+
+---
+
+Q8: A class can implement multiple interfaces in Java?
+
+A - True
+
+B - False
+
+---
+
+Q9: Which relationship does composition represent?
+
+A - IS-A relationship
+
+B - HAS-A relationship
+
+C - USES-A relationship
+
+D - EXTENDS-A relationship
+
+---
+
+Q10: The `@Override` annotation is mandatory when overriding a method?
+
+A - True
+
+B - False
 
 ## Notes
 - Keep each question atomic and aligned to the lesson objectives.
