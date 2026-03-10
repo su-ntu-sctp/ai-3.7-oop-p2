@@ -4,13 +4,10 @@
 This lesson deepens OOP fundamentals by applying the four pillars—encapsulation, inheritance, polymorphism, and abstraction—plus composition. Learners implement access control, constructors, `super`/`this`, `protected`, interfaces vs. abstract classes, method overloading/overriding, and design HAS-A vs. IS-A relationships with concise, practical examples.
 
 ## Lesson Objectives
-- Explain and apply the four OOP pillars in Java.
-- Enforce encapsulation with private fields and getters/setters.
-- Use inheritance with `extends`, `super` constructors, and `protected` access.
-- Differentiate method overloading (compile-time) and overriding (runtime).
-- Design abstractions via abstract classes and interfaces (including default methods).
-- Model relationships using composition (HAS-A) vs. inheritance (IS-A).
-- Write small programs that integrate these concepts (e.g., `Person`, `Student`, vehicles).
+- Apply inheritance using `extends`, `super`, and `protected` to build class hierarchies.
+- Differentiate method overloading (compile-time) and overriding (runtime polymorphism).
+- Design abstractions using abstract classes and interfaces.
+- Model HAS-A relationships using composition.
 
 ## Object Oriented Programming
 
@@ -78,7 +75,6 @@ public class Person {
     this.birthYear = birthYear;
   }
 }
-
 ```
 
 In this way, we can protect the fields from accidental changes and misuse.
@@ -251,7 +247,7 @@ Note that we cannot call `super()` and `this()` in the same constructor. This is
 
 ```java
 public Student(String name, int birthYear, int studentId, String course, int yearEnrolled) {
-  super(name, age); // This calls Person(String name, int age)
+  super(name, birthYear); // This calls Person(String name, int birthYear)
   this(studentId, course, yearEnrolled); // ❌ This is not allowed
 }
 ```
@@ -300,7 +296,7 @@ If we want to access the `name` field directly, we can use the `protected` acces
 protected String name;
 ```
 
-### 👨‍💻 Activity: Inheritance
+### 👨‍💻 Activity: Inheritance **(10 minutes)**
 
 Create a `Teacher` class that inherits from the `Person` class.
 
@@ -340,6 +336,8 @@ There are 2 types of polymorphism:
 Compile-time polymorphism is also known as **method overloading**. It occurs when there are multiple methods with the same name but different parameters.
 
 It is called compile-time polymorphism because the compiler determines which method to call based on the number and type of arguments passed in.
+
+Create a new `Calculator.java` file and code along.
 
 ```java
 public class Calculator {
@@ -390,7 +388,7 @@ Overriding is useful because it allows us to define a method in the child class 
 
 Let's **override** the `doWork()` method in the `Student` class.
 
-In the `Student` class file, right click, "Source Action, "Override/Implement Methods...".
+In the `Student` class file, right click, "Source Action", "Override/Implement Methods...".
 
 ```java
 @Override
@@ -441,7 +439,7 @@ public class Student extends Person {
 }
 ```
 
-### 👨‍💻 Activity: Polymorphism
+### 👨‍💻 Activity: Polymorphism **(5 minutes)**
 
 Override the `doWork()` method in the `Teacher` class to say that the teacher is teaching.
 
@@ -654,9 +652,9 @@ car.stop();
 car.honk();
 ```
 
-### 👨‍💻 Activity: Abstraction
+### 👨‍💻 Activity: Abstraction **(20 minutes)**
 
-In this activity, you will practice working with abstract class and interfaces.
+In this activity, you will practice working with abstract classes and interfaces.
 
 Create an `abstract` class `Vehicle`. There will be 2 child classes `Car` and `ElectricCar` that will extend the `Vehicle` class.
 
@@ -691,9 +689,7 @@ interface BatteryPack {
 }
 ```
 
-All vehicles are `Drivable` and `Trackable`. A `Car` should implement `FuelTank` and an `ElectricCar` should implement a `BatteryPack`.
-
-To show that the interface can be used across unrelated classes, create a `MobilePhone` class that implements `Trackable` and `BatteryPack`. And an `RCCar` (remote controlled car) that implements `Drivable` and `BatteryPack`.
+All vehicles are `Drivable` and `Trackable`. A `Car` should implement `FuelTank` and an `ElectricCar` should implement `BatteryPack`.
 
 Test code:
 
@@ -711,17 +707,9 @@ electricCar.drive();
 electricCar.stop();
 electricCar.charge();
 electricCar.getCharge();
-
-MobilePhone phone = new MobilePhone();
-phone.charge();
-phone.getCharge();
-
-RCCar rcCar = new RCCar();
-rcCar.drive();
-rcCar.stop();
-rcCar.charge();
-rcCar.getCharge();
 ```
+
+> 🔵 **Bonus:** To show that interfaces can be used across unrelated classes, create a `MobilePhone` class that implements `Trackable` and `BatteryPack`, and an `RCCar` (remote controlled car) that implements `Drivable` and `BatteryPack`.
 
 ### Interfaces vs Abstract Classes
 
