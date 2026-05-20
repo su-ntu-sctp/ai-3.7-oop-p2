@@ -1,4 +1,4 @@
-# 3.7 Self Studies
+# 3.7 Self-Pace.md
 
 **Estimated Preparation Time:** 70 minutes
 
