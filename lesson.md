@@ -58,7 +58,7 @@ public class Person {
       return;
     }
     int currentYear = java.time.Year.now().getValue();
-    System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old person.");
+    System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old " + this.getClass().getSimpleName().toLowerCase() + ".");
   }
 
   public void doWork() {
@@ -186,19 +186,6 @@ Note that a class may only extend from one parent class as Java does not support
 // ❌ This is not allowed
 public class Student extends Person, Human {
   // ...
-}
-```
-
-Let's modify our `greet()` method to show the class calling the method.
-
-```java
-public void greet() {
-  if (this.birthYear == 0) {
-    System.out.println("👋 Hello, my name is " + this.name + " but birth year is not set.");
-    return;
-  }
-  int currentYear = java.time.Year.now().getValue();
-  System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old " + this.getClass().getSimpleName().toLowerCase() + ".");
 }
 ```
 
@@ -423,7 +410,7 @@ student.doWork();
 
 #### The `@Override` annotation
 
-The `@Override` annotation is used to indicate that a method is being overriding. It is not required but it is good practice to use it.
+The `@Override` annotation is used to indicate that a method is being overridden. It is not required but it is good practice to use it.
 
 This is because without the annotation, if we accidentally misspell the method name or change the method signature, the compiler will not be able to detect it and we will not get any error messages.
 
@@ -471,13 +458,13 @@ teacher.greet();
 teacher.doWork();
 ```
 
-Example output:
+Example output (year shown depends on current year):
 
 ```bash
 # teacher.doWork() output
 John is teaching.
 # teacher.greet() output
-👋 Hello, my name is John and I am a 48 year old teacher.
+👋 Hello, my name is John and I am a 51 year old teacher.
 Also, I teach Mathematics.
 ```
 
