@@ -46,16 +46,32 @@ public class Person {
 
   public Person(String name, int birthYear) {
     this.name = name;
-    this.birthYear = birthYear;
+    if (validateBirthYear(birthYear)) {
+      this.birthYear = birthYear;
+    }
   }
 
   // INSTANCE METHODS
   public void greet() {
-    System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (2023 - this.birthYear) + " year old person.");
+    if (this.birthYear == 0) {
+      System.out.println("👋 Hello, my name is " + this.name + " but birth year is not set.");
+      return;
+    }
+    int currentYear = java.time.Year.now().getValue();
+    System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old person.");
   }
 
   public void doWork() {
     System.out.println(this.name + " is working.");
+  }
+
+  // VALIDATION
+  private boolean validateBirthYear(int birthYear) {
+    if (birthYear < 1900 || birthYear > java.time.Year.now().getValue()) {
+      System.out.println("Invalid birth year.");
+      return false;
+    }
+    return true;
   }
 
   // GETTERS AND SETTERS
@@ -72,24 +88,21 @@ public class Person {
   }
 
   public void setBirthYear(int birthYear) {
-    this.birthYear = birthYear;
+    if (validateBirthYear(birthYear)) {
+      this.birthYear = birthYear;
+    }
   }
 }
 ```
 
 In this way, we can protect the fields from accidental changes and misuse.
 
-For example we could prevent setting a negative age for a person.
+For example we could prevent setting a negative age for a person. Notice that:
 
-```java
-public void setBirthYear(int birthYear) {
-  if (birthYear < 1900 || birthYear > 2021) {
-    System.out.println("Invalid birth year.");
-    return;
-  }
-  this.birthYear = birthYear;
-}
-```
+1. The `validateBirthYear()` method is `private` — it is an internal helper, not exposed to users.
+2. Both the **constructor** and the **setter** call `validateBirthYear()` — so validation is always applied regardless of how the object is created or updated.
+3. The `greet()` method checks if `birthYear` is `0` (default) — to avoid printing a nonsense age if an invalid year was rejected.
+4. The hardcoded year is replaced with `java.time.Year.now().getValue()` — so the age calculation is always correct.
 
 If the `birthYear` field is public, we cannot prevent the user from setting an invalid value.
 
@@ -104,16 +117,16 @@ person.doWork();
 
 The users of our public methods do not need to know how the method works. Even if we were to make some internal changes, the user would not be affected.
 
-For example, if we were to change the criteria for a valid birth year, we would only need to change the `setBirthYear` method. The user would not need to change their code.
+For example, if we were to change the criteria for a valid birth year, we would only need to change the `validateBirthYear` method. The user would not need to change their code.
 
 ```java
-public void setBirthYear(int birthYear) {
-  // if (birthYear < 1900 || birthYear > 2021) {
-  if (birthYear < 1970 || birthYear > 2020) {
+private boolean validateBirthYear(int birthYear) {
+  // if (birthYear < 1900 || birthYear > java.time.Year.now().getValue()) {
+  if (birthYear < 1970 || birthYear > java.time.Year.now().getValue()) {
     System.out.println("Invalid birth year.");
-    return;
+    return false;
   }
-  this.birthYear = birthYear;
+  return true;
 }
 ```
 
@@ -180,7 +193,12 @@ Let's modify our `greet()` method to show the class calling the method.
 
 ```java
 public void greet() {
-  System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (2023 - this.birthYear) + " year old " + this.getClass().getSimpleName().toLowerCase() + ".");
+  if (this.birthYear == 0) {
+    System.out.println("👋 Hello, my name is " + this.name + " but birth year is not set.");
+    return;
+  }
+  int currentYear = java.time.Year.now().getValue();
+  System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old " + this.getClass().getSimpleName().toLowerCase() + ".");
 }
 ```
 
@@ -368,7 +386,7 @@ Let's **overload** the `doWork()` method in `Student` class by accepting a `Stri
 
 ```java
 public void doWork(String work) {
-  System.out.println(this.name + " is doing " + work);
+  System.out.println(this.getName() + " is doing " + work);
 }
 ```
 
@@ -393,7 +411,7 @@ In the `Student` class file, right click, "Source Action", "Override/Implement M
 ```java
 @Override
 public void doWork() {
-  System.out.println(this.name + " is studying.");
+  System.out.println(this.getName() + " is studying.");
 }
 ```
 
@@ -405,14 +423,14 @@ student.doWork();
 
 #### The `@Override` annotation
 
-The `@Override` annotation is used to indicate that a method is being overridden. It is not required but it is good practice to use it.
+The `@Override` annotation is used to indicate that a method is being overriding. It is not required but it is good practice to use it.
 
 This is because without the annotation, if we accidentally misspell the method name or change the method signature, the compiler will not be able to detect it and we will not get any error messages.
 
 ```java
 // @Override
 public void doWerk() {
-  System.out.println(this.name + " is studying.");
+  System.out.println(this.getName() + " is studying.");
 }
 ```
 
@@ -420,7 +438,7 @@ And then when we run the following code, the `doWork()` method in the `Person` c
 
 ```java
 Person student = new Student("John", 2000, 12345, "Computer Science", 2020);
-student.doWork(); // I am working.
+student.doWork(); // John is working.
 ```
 
 #### Runtime Polymorphism with `super`
@@ -504,7 +522,7 @@ Once we declare `Person` as `abstract`, it can only be used as a superclass for 
 Now when we try to instantiate the `Person` class, we will get an error.
 
 ```java
-Person person = new Person("Tony Stark", 2000, 12345);
+Person person = new Person("Tony Stark", 2000);
 ```
 
 ### Interfaces
