@@ -156,6 +156,8 @@ public class Student extends Person {
   private ArrayList<Double> grades;
 
   public Student(int studentId, String course, int yearEnrolled) {
+    // Note: We will improve this constructor later to accept name and birthYear
+    // and pass them to the Person constructor using super(name, birthYear).
     this.studentId = studentId;
     this.course = course;
     this.yearEnrolled = yearEnrolled;
@@ -165,12 +167,21 @@ public class Student extends Person {
 
   // add getters and setters
 
+  // Note: We do not have a setGrades() method here.
+  // grades is an ArrayList — we don't want to replace the entire list.
+  // Instead, we use addGrade() to add one grade at a time.
+  // This gives us better control over the data.
+
   // add methods specific to Student
   public void addGrade(double grade) {
     this.grades.add(grade);
   }
 
   public double getAverageGrade() {
+    if (this.grades.size() == 0) {
+      System.out.println("No grades available.");
+      return 0;
+    }
     double sum = 0;
     for (double grade : this.grades) {
       sum += grade;
@@ -544,10 +555,21 @@ public interface Trackable {
   // public abstract void track();
   // public and abstract are not required
   void track();
+
+  // Variables in interfaces are implicitly public, static and final (constants)
+  // They cannot be changed once set
+  int MAX_TRACKING_DISTANCE = 1000; // same as: public static final int MAX_TRACKING_DISTANCE = 1000;
+
+  // Default method - has a body, implementing class can use as-is or override (Java 8+)
+  default void startTracking() {
+    System.out.println("Tracking started. Max distance: " + MAX_TRACKING_DISTANCE + "km.");
+  }
 }
 ```
 
 Any method declared in an interface is by default `public` and `abstract`. So, we do not need to specify the `public` and `abstract` keywords.
+
+> 📝 **Note:** Variables declared in an interface are implicitly `public static final` — meaning they are **constants**. You cannot change their value. If you try to do `MAX_TRACKING_DISTANCE = 500`, you will get a compile error.
 
 To use the `Trackable` interface, we need to implement it in the `Car` and `MobilePhone` classes with the `implements` keyword.
 
@@ -602,9 +624,32 @@ And test it out with the following code.
 ```java
 Car car = new Car("Toyota", 2022);
 car.track();
+car.startTracking(); // uses default method from Trackable interface
 
 MobilePhone phone = new MobilePhone("iPhone 14");
 phone.track();
+phone.startTracking(); // uses default method from Trackable interface
+```
+
+Notice that both `Car` and `MobilePhone` can call `startTracking()` without implementing it — they inherit the default implementation from the interface.
+
+A class can also **override** the default method with its own implementation:
+
+```java
+public class Car implements Trackable {
+  // ...
+
+  @Override
+  public void track() {
+    System.out.println("Tracking car " + this.name + " from " + this.year + ".");
+  }
+
+  // Overriding the default method with a custom implementation
+  @Override
+  public void startTracking() {
+    System.out.println("Car GPS tracking started for " + this.name + ".");
+  }
+}
 ```
 
 Unlike inheritance, a class can implement multiple interfaces. A car can be `Trackable` as well as `Drivable`.
