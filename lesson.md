@@ -546,7 +546,7 @@ Interfaces allow us to specify what a class must do, without specifying how it s
 
 Using interfaces allows us to define a common behaviour that can be shared among multiple classes. This is useful when we want to define a common behavior for classes that are not related to each other.
 
-For example, we might want to have a common behaviour, say `Trackable` for a `Car` as well as a `MobilePhone`. The `Car` and the `MobilePhone` are not related conceptually but yet we may need to implement a trackable behaviour for both. We can define a `Trackable` interface and have both the `Car` and `MobilePhone` classes implement the `Trackable` interface.
+For example, we might want to have a common behaviour, say `Trackable` for a `MobilePhone` as well as some other, entirely unrelated class. Two unrelated classes are not conceptually related, but yet we may need to implement a trackable behaviour for both. We can define a `Trackable` interface and have both classes implement it.
 
 Create a file `LearnInterfaces.java` and code along. If you wish to do it in a single file, just omit the `public` keyword for the following interface and classes.
 
@@ -571,35 +571,7 @@ Any method declared in an interface is by default `public` and `abstract`. So, w
 
 > 📝 **Note:** Variables declared in an interface are implicitly `public static final` — meaning they are **constants**. You cannot change their value. If you try to do `MAX_TRACKING_DISTANCE = 500`, you will get a compile error.
 
-To use the `Trackable` interface, we need to implement it in the `Car` and `MobilePhone` classes with the `implements` keyword.
-
-```java
-public class Car implements Trackable {
-  private String name;
-  private int year;
-
-  public Car() {
-  }
-
-  public Car(String name, int year) {
-    this.name = name;
-    this.year = year;
-  }
-
-  @Override
-  public void track() {
-    System.out.println("Tracking car " + this.name + " from " + this.year + ".");
-  }
-
-  public String getName() {
-    return this.name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-}
-```
+To use the `Trackable` interface, we need to implement it in the `MobilePhone` class with the `implements` keyword.
 
 ```java
 public class MobilePhone implements Trackable {
@@ -622,39 +594,33 @@ public class MobilePhone implements Trackable {
 And test it out with the following code.
 
 ```java
-Car car = new Car("Toyota", 2022);
-car.track();
-car.startTracking(); // uses default method from Trackable interface
-
 MobilePhone phone = new MobilePhone("iPhone 14");
 phone.track();
 phone.startTracking(); // uses default method from Trackable interface
 ```
 
-Notice that both `Car` and `MobilePhone` can call `startTracking()` without implementing it — they inherit the default implementation from the interface.
+Notice that `MobilePhone` can call `startTracking()` without implementing it — it inherits the default implementation from the interface.
 
 A class can also **override** the default method with its own implementation:
 
 ```java
-public class Car implements Trackable {
+public class MobilePhone implements Trackable {
   // ...
 
   @Override
   public void track() {
-    System.out.println("Tracking car " + this.name + " from " + this.year + ".");
+    System.out.println("Tracking mobile phone " + this.model + ".");
   }
 
   // Overriding the default method with a custom implementation
   @Override
   public void startTracking() {
-    System.out.println("Car GPS tracking started for " + this.name + ".");
+    System.out.println("Phone GPS tracking started for " + this.model + ".");
   }
 }
 ```
 
-Unlike inheritance, a class can implement multiple interfaces. A car can be `Trackable` as well as `Drivable`.
-
-Let's define a `Drivable` interface.
+Unlike inheritance, a class can implement multiple interfaces. Let's define a `Drivable` interface, which we will use shortly.
 
 ```java
 public interface Drivable {
@@ -670,37 +636,7 @@ public interface Drivable {
 
 Default methods were added in Java 8. This was because previously it was not possible to add new methods to an interface without breaking the existing implementations of the interface.
 
-Now, the classes that implement the interface can choose to override the default method with their own implementation, or they can simply use the default implementation.
-
-```java
-public class Car implements Trackable, Drivable {
-  // ...
-  @Override
-  public void track() {
-    System.out.println("Tracking car...");
-  }
-
-  @Override
-  public void drive() {
-    System.out.println("Driving car...");
-  }
-
-  @Override
-  public void stop() {
-    System.out.println("Stopping car...");
-  }
-}
-```
-
-Test the `Car` class with the following code.
-
-```java
-Car car = new Car("Toyota", 2022);
-car.track();
-car.drive();
-car.stop();
-car.honk();
-```
+Now, the classes that implement the interface can choose to override the default method with their own implementation, or they can simply use the default implementation. We'll see `Drivable` used together with `Trackable` on the same class shortly, in the Abstraction activity below.
 
 ### 👨‍💻 Activity: Abstraction **(20 minutes)**
 
@@ -759,8 +695,6 @@ electricCar.charge();
 electricCar.getCharge();
 ```
 
-> 🔵 **Bonus:** To show that interfaces can be used across unrelated classes, create a `MobilePhone` class that implements `Trackable` and `BatteryPack`, and an `RCCar` (remote controlled car) that implements `Drivable` and `BatteryPack`.
-
 ### Interfaces vs Abstract Classes
 
 You may have noticed that interfaces can be nouns, just like abstract classes. So, when should we use an interface and when should we use an abstract class?
@@ -805,11 +739,11 @@ For example, a car is composed of an engine, wheels, seats, etc. A car is not a 
 
 Inheritance defines a **IS-A** relationship. Composition defines a **HAS-A** relationship. A car **IS-A** vehicle. A car **HAS-A** engine.
 
-Let's say we have a `Radio` class now. One way for our `Car` and `ElectricCar` to have a radio is to put it in the `Vehicle` class. But not all vehicles have a radio.
+Let's say we have a `Radio` class now. One way for our `Car` and `ElectricCar` — the same `Car` and `ElectricCar` classes we already built in the Abstraction activity — to have a radio is to put it in the `Vehicle` class. But not all vehicles have a radio.
 
 Instead, we can create a `Radio` class and add it in the `Car` and `ElectricCar` classes.
 
-We do not want to define the `Radio` in the `Vehicle` class as that would mean all child classes would have a `Radio`. We would also not want to define the Radio in the `Car` and `ElectricCar` classes as we would be repeating code.
+We do not want to define the `Radio` in the `Vehicle` class as that would mean all child classes would have a `Radio`. We would also not want to define the Radio separately in every subclass that needs one, repeating the same field and constructor logic.
 
 ```java
 public class Radio {
@@ -837,46 +771,79 @@ public class Radio {
 }
 ```
 
+Now let's add a `Radio` field to our existing `Car` class from the Abstraction activity — the one that already `extends Vehicle` and `implements FuelTank`. Notice we are not creating a new `Car` class; we are adding to the one we already have.
+
 ```java
-public class Car {
-  private String make;
-  private Radio radio;
+public class Car extends Vehicle implements FuelTank {
+  private double fuelLevel;
+  private Radio radio; // NEW - Car HAS-A Radio
 
   public Car(String make) {
-    this.make = make;
-    this.radio = new Radio("Sony");
+    super(make);
+    this.fuelLevel = 0;
+    this.radio = new Radio("Sony"); // Car creates and owns its own Radio
   }
 
+  @Override
   public void drive() {
-    System.out.println("Driving car...");
+    System.out.println(this.getMake() + " car is driving.");
   }
 
+  @Override
   public void stop() {
-    System.out.println("Stopping car...");
+    System.out.println(this.getMake() + " car is stopping.");
   }
 
+  @Override
+  public void fill() {
+    this.fuelLevel = 100;
+    System.out.println(this.getMake() + " fuel tank filled.");
+  }
+
+  @Override
+  public double getFuelLevel() {
+    return this.fuelLevel;
+  }
+
+  // NEW - delegating to the composed Radio object
   public void playRadio() {
     this.radio.play();
   }
 }
 ```
+
+The same applies to `ElectricCar` — add a `Radio` field to the existing class from the Abstraction activity:
 
 ```java
-public class ElectricCar {
-  private String make;
-  private Radio radio;
+public class ElectricCar extends Vehicle implements BatteryPack {
+  private double charge;
+  private Radio radio; // NEW - ElectricCar HAS-A Radio
 
   public ElectricCar(String make) {
-    this.make = make;
+    super(make);
+    this.charge = 0;
     this.radio = new Radio("Sony");
   }
 
+  @Override
   public void drive() {
-    System.out.println("Driving electric car...");
+    System.out.println(this.getMake() + " electric car is driving.");
   }
 
+  @Override
   public void stop() {
-    System.out.println("Stopping electric car...");
+    System.out.println(this.getMake() + " electric car is stopping.");
+  }
+
+  @Override
+  public void charge() {
+    this.charge = 100;
+    System.out.println(this.getMake() + " battery charged.");
+  }
+
+  @Override
+  public double getCharge() {
+    return this.charge;
   }
 
   public void playRadio() {
@@ -884,6 +851,8 @@ public class ElectricCar {
   }
 }
 ```
+
+Notice that this same `Car` class now uses inheritance (`extends Vehicle`), an interface (`implements FuelTank`), **and** composition (`Radio` field) all at once. These are not competing techniques — a single class can combine all three.
 
 ---
 
