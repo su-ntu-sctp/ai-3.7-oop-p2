@@ -1,9 +1,13 @@
 # Lesson: Object-Oriented Programming — Encapsulation, Inheritance, Polymorphism, Abstraction
 
 ## Lesson Overview
-This lesson deepens OOP fundamentals by applying the four pillars—encapsulation, inheritance, polymorphism, and abstraction—plus composition. Learners implement access control, constructors, `super`/`this`, `protected`, interfaces vs. abstract classes, method overloading/overriding, and design HAS-A vs. IS-A relationships with concise, practical examples.
+
+This lesson deepens OOP fundamentals by applying the four pillars, encapsulation, inheritance, polymorphism, and abstraction, plus composition. You will implement access control, constructors, `super`/`this`, `protected`, interfaces vs. abstract classes, method overloading/overriding, and design HAS-A vs. IS-A relationships with concise, practical examples.
+
+The `Customer` class from the previous lesson is the starting point here. You will grow it into a small class hierarchy of customer types, which is the same shape of model you will later expose through a REST API.
 
 ## Lesson Objectives
+
 - Apply inheritance using `extends`, `super`, and `protected` to build class hierarchies.
 - Differentiate method overloading (compile-time) and overriding (runtime polymorphism).
 - Design abstractions using abstract classes and interfaces.
@@ -31,44 +35,45 @@ As explained in the previous lesson, encapsulation is
 
 By setting fields to private, we are hiding them from public access. We can then provide public methods to access and modify the fields.
 
-Let's define a `Person` class.
+Let's define a `Customer` class. This is the same idea as the class you built in the previous lesson, with validation added.
 
 ```java
-public class Person {
+public class Customer {
 
   // FIELDS
   private String name;
-  private int birthYear;
+  private int joinYear;
 
   // CONSTRUCTORS
-  public Person() {
+  public Customer() {
   }
 
-  public Person(String name, int birthYear) {
+  public Customer(String name, int joinYear) {
     this.name = name;
-    if (validateBirthYear(birthYear)) {
-      this.birthYear = birthYear;
+    if (validateJoinYear(joinYear)) {
+      this.joinYear = joinYear;
     }
   }
 
   // INSTANCE METHODS
-  public void greet() {
-    if (this.birthYear == 0) {
-      System.out.println("👋 Hello, my name is " + this.name + " but birth year is not set.");
+  public void displayProfile() {
+    if (this.joinYear == 0) {
+      System.out.println("Customer: " + this.name + " (join year not set).");
       return;
     }
     int currentYear = java.time.Year.now().getValue();
-    System.out.println("👋 Hello, my name is " + this.name + " and I am a " + (currentYear - this.birthYear) + " year old " + this.getClass().getSimpleName().toLowerCase() + ".");
+    System.out.println("Customer: " + this.name + ", " + (currentYear - this.joinYear)
+        + " years with us. Type: " + this.getClass().getSimpleName() + ".");
   }
 
-  public void doWork() {
-    System.out.println(this.name + " is working.");
+  public void calculateDiscount() {
+    System.out.println(this.name + " gets the standard discount.");
   }
 
   // VALIDATION
-  private boolean validateBirthYear(int birthYear) {
-    if (birthYear < 1900 || birthYear > java.time.Year.now().getValue()) {
-      System.out.println("Invalid birth year.");
+  private boolean validateJoinYear(int joinYear) {
+    if (joinYear < 1990 || joinYear > java.time.Year.now().getValue()) {
+      System.out.println("Invalid join year.");
       return false;
     }
     return true;
@@ -83,13 +88,13 @@ public class Person {
     this.name = name;
   }
 
-  public int getBirthYear() {
-    return this.birthYear;
+  public int getJoinYear() {
+    return this.joinYear;
   }
 
-  public void setBirthYear(int birthYear) {
-    if (validateBirthYear(birthYear)) {
-      this.birthYear = birthYear;
+  public void setJoinYear(int joinYear) {
+    if (validateJoinYear(joinYear)) {
+      this.joinYear = joinYear;
     }
   }
 }
@@ -97,33 +102,33 @@ public class Person {
 
 In this way, we can protect the fields from accidental changes and misuse.
 
-For example we could prevent setting a negative age for a person. Notice that:
+For example we could prevent setting an impossible join year. Notice that:
 
-1. The `validateBirthYear()` method is `private` — it is an internal helper, not exposed to users.
-2. Both the **constructor** and the **setter** call `validateBirthYear()` — so validation is always applied regardless of how the object is created or updated.
-3. The `greet()` method checks if `birthYear` is `0` (default) — to avoid printing a nonsense age if an invalid year was rejected.
-4. The hardcoded year is replaced with `java.time.Year.now().getValue()` — so the age calculation is always correct.
+1. The `validateJoinYear()` method is `private`. It is an internal helper, not exposed to users.
+2. Both the **constructor** and the **setter** call `validateJoinYear()`, so validation is always applied regardless of how the object is created or updated.
+3. The `displayProfile()` method checks if `joinYear` is `0` (the default), to avoid printing a nonsense number of years if an invalid value was rejected.
+4. The current year is read using `java.time.Year.now().getValue()` rather than hardcoded, so the calculation is always correct.
 
-If the `birthYear` field is public, we cannot prevent the user from setting an invalid value.
+If the `joinYear` field were public, we could not prevent the user from setting an invalid value.
 
-Create `App.java` and test this
+Create `App.java` and test this.
 
 ```java
-Person person = new Person("Tony Stark", 1975);
-person.setBirthYear(0);
-person.greet();
-person.doWork();
+Customer customer = new Customer("Tony Stark", 2015);
+customer.setJoinYear(0);
+customer.displayProfile();
+customer.calculateDiscount();
 ```
 
 The users of our public methods do not need to know how the method works. Even if we were to make some internal changes, the user would not be affected.
 
-For example, if we were to change the criteria for a valid birth year, we would only need to change the `validateBirthYear` method. The user would not need to change their code.
+For example, if we were to change the criteria for a valid join year, we would only need to change the `validateJoinYear` method. The user would not need to change their code.
 
 ```java
-private boolean validateBirthYear(int birthYear) {
-  // if (birthYear < 1900 || birthYear > java.time.Year.now().getValue()) {
-  if (birthYear < 1970 || birthYear > java.time.Year.now().getValue()) {
-    System.out.println("Invalid birth year.");
+private boolean validateJoinYear(int joinYear) {
+  // if (joinYear < 1990 || joinYear > java.time.Year.now().getValue()) {
+  if (joinYear < 2000 || joinYear > java.time.Year.now().getValue()) {
+    System.out.println("Invalid join year.");
     return false;
   }
   return true;
@@ -138,55 +143,52 @@ private boolean validateBirthYear(int birthYear) {
 
 Inheritance is organizing code into a parent-child hierarchy so that the child can inherit the properties and methods of the parent.
 
-Take for example, a `Person` class. It is the base class of a hierarchy of classes for other child classes such as `Student`, `Teacher`, `Employee`, `Janitor` etc.
+Take for example, a `Customer` class. It is the base class of a hierarchy of classes for other child classes such as `RetailCustomer`, `CorporateCustomer`, `WholesaleCustomer` and so on.
 
 ### Creating a child class
 
-Let's create a `Student` class that inherits from the `Person` class. To do that, we use the `extends` keyword.
+Let's create a `RetailCustomer` class that inherits from the `Customer` class. To do that, we use the `extends` keyword.
 
-By inheriting from the `Person` class, the `Student` class will inherit all the fields and methods of the `Person` class. The `Person` class is also known as the **parent** class or **super** class. The `Student` class is also known as the **child** class or **sub** class.
+By inheriting from the `Customer` class, the `RetailCustomer` class will inherit all the fields and methods of the `Customer` class. The `Customer` class is also known as the **parent** class or **super** class. The `RetailCustomer` class is also known as the **child** class or **sub** class.
 
-In addition, we want to make `Student` different by declaring fields and methods specific to it.
+In addition, we want to make `RetailCustomer` different by declaring fields and methods specific to it.
 
 ```java
-public class Student extends Person {
-  private int studentId;
-  private String course;
-  private int yearEnrolled;
-  private ArrayList<Double> grades;
+public class RetailCustomer extends Customer {
+  private int accountNumber;
+  private String membershipTier;
+  private ArrayList<Double> purchases;
 
-  public Student(int studentId, String course, int yearEnrolled) {
-    // Note: We will improve this constructor later to accept name and birthYear
-    // and pass them to the Person constructor using super(name, birthYear).
-    this.studentId = studentId;
-    this.course = course;
-    this.yearEnrolled = yearEnrolled;
-    this.grades = new ArrayList<Double>();
+  public RetailCustomer(int accountNumber, String membershipTier) {
+    // Note: We will improve this constructor later to accept name and joinYear
+    // and pass them to the Customer constructor using super(name, joinYear).
+    this.accountNumber = accountNumber;
+    this.membershipTier = membershipTier;
+    this.purchases = new ArrayList<Double>();
   }
-
 
   // add getters and setters
 
-  // Note: We do not have a setGrades() method here.
-  // grades is an ArrayList — we don't want to replace the entire list.
-  // Instead, we use addGrade() to add one grade at a time.
+  // Note: We do not have a setPurchases() method here.
+  // purchases is an ArrayList and we do not want to replace the entire list.
+  // Instead, we use addPurchase() to add one purchase at a time.
   // This gives us better control over the data.
 
-  // add methods specific to Student
-  public void addGrade(double grade) {
-    this.grades.add(grade);
+  // add methods specific to RetailCustomer
+  public void addPurchase(double amount) {
+    this.purchases.add(amount);
   }
 
-  public double getAverageGrade() {
-    if (this.grades.size() == 0) {
-      System.out.println("No grades available.");
+  public double getAveragePurchase() {
+    if (this.purchases.size() == 0) {
+      System.out.println("No purchases recorded.");
       return 0;
     }
     double sum = 0;
-    for (double grade : this.grades) {
-      sum += grade;
+    for (double amount : this.purchases) {
+      sum += amount;
     }
-    return sum / this.grades.size();
+    return sum / this.purchases.size();
   }
 }
 ```
@@ -195,114 +197,112 @@ Note that a class may only extend from one parent class as Java does not support
 
 ```java
 // ❌ This is not allowed
-public class Student extends Person, Human {
+public class RetailCustomer extends Customer, Person {
   // ...
 }
 ```
 
-Now we can test our `Student` class.
+Now we can test our `RetailCustomer` class.
 
 ```java
 public class App {
   public static void main(String[] args) {
-    // Instantiating a Student object
-    Student student = new Student(1, "Computer Science", 2022);
+    // Instantiating a RetailCustomer object
+    RetailCustomer retail = new RetailCustomer(5001, "Gold");
 
-    // Calling methods from the Person (Parent) class
-    student.setName("Tony");
-    student.setBirthYear(1995);
-    student.greet();
-    student.doWork();
+    // Calling methods from the Customer (Parent) class
+    retail.setName("Tony");
+    retail.setJoinYear(2015);
+    retail.displayProfile();
+    retail.calculateDiscount();
 
-    // Calling methods from the Student (Child) class
-    System.out.println("I am studying " + student.getCourse());
-    student.addGrade(80);
-    student.addGrade(90);
-    System.out.println("My average grade is " + student.getAverageGrade());
+    // Calling methods from the RetailCustomer (Child) class
+    System.out.println("Membership tier: " + retail.getMembershipTier());
+    retail.addPurchase(80);
+    retail.addPurchase(90);
+    System.out.println("Average purchase is " + retail.getAveragePurchase());
   }
 }
 ```
 
-The `Student` instance has access to all the `public` methods of the `Person` class.
+The `RetailCustomer` instance has access to all the `public` methods of the `Customer` class.
 
-Currently, we have to manually initialize the `name` and `age` fields using the setter methods because they are in the `Person` class. We can improve this by calling a constructor that accepts those values as well.
+Currently, we have to manually initialize the `name` and `joinYear` fields using the setter methods because they are in the `Customer` class. We can improve this by calling a constructor that accepts those values as well.
 
-But how do we initialize these values since the `Student` class does not have these fields?
+But how do we initialize these values since the `RetailCustomer` class does not have these fields?
 
 ### `super` keyword
 
 The `super` keyword is like `this` but it refers to the parent class. It can be used to call the parent class constructor. Recall that the parent class is also known as the **super** class, hence that is what calling `super()` does.
 
-Currently we are not using `super` yet but the `Student` class has default values for the `name` and `age` fields. This is because Java automatically called `super()` for us implicitly.
+Currently we are not using `super` yet but the `RetailCustomer` class has default values for the `name` and `joinYear` fields. This is because Java automatically called `super()` for us implicitly.
 
 ```java
-public Student(int studentId, String course, int yearEnrolled) {
-  super(); // This calls Person()
-  this.studentId = studentId;
-  this.course = course;
-  this.yearEnrolled = yearEnrolled;
-  this.grades = new ArrayList<Double>();
+public RetailCustomer(int accountNumber, String membershipTier) {
+  super(); // This calls Customer()
+  this.accountNumber = accountNumber;
+  this.membershipTier = membershipTier;
+  this.purchases = new ArrayList<Double>();
 }
 ```
 
-`super()` calls the no-argument constructor of the parent class when there are no arguments passed in. If we want to call a different constructor, we can do so by passing in the arguments. In this case we want to call the `Person` constructor that accepts `name` and `birthYear`.
+`super()` calls the no-argument constructor of the parent class when there are no arguments passed in. If we want to call a different constructor, we can do so by passing in the arguments. In this case we want to call the `Customer` constructor that accepts `name` and `joinYear`.
 
-Our student constructor will also take in `name` and `birthYear` as arguments. The `name` and `birthYear` will be passed to the `Person` constructor using `super(name, birthYear)`.
+Our `RetailCustomer` constructor will also take in `name` and `joinYear` as arguments. These will be passed to the `Customer` constructor using `super(name, joinYear)`.
 
 ```java
-public Student(String name, int birthYear, int studentId, String course, int yearEnrolled) {
-  super(name, birthYear); // This calls Person(String name, int birthYear)
-  this.studentId = studentId;
-  this.course = course;
-  this.yearEnrolled = yearEnrolled;
-  this.grades = new ArrayList<Double>();
+public RetailCustomer(String name, int joinYear, int accountNumber, String membershipTier) {
+  super(name, joinYear); // This calls Customer(String name, int joinYear)
+  this.accountNumber = accountNumber;
+  this.membershipTier = membershipTier;
+  this.purchases = new ArrayList<Double>();
 }
 ```
 
-Note that we cannot call `super()` and `this()` in the same constructor. This is because both `super()` or `this()` must be the first statement in the constructor.
+Note that we cannot call `super()` and `this()` in the same constructor. This is because both `super()` and `this()` must be the first statement in the constructor.
 
 ```java
-public Student(String name, int birthYear, int studentId, String course, int yearEnrolled) {
-  super(name, birthYear); // This calls Person(String name, int birthYear)
-  this(studentId, course, yearEnrolled); // ❌ This is not allowed
+public RetailCustomer(String name, int joinYear, int accountNumber, String membershipTier) {
+  super(name, joinYear); // This calls Customer(String name, int joinYear)
+  this(accountNumber, membershipTier); // ❌ This is not allowed
 }
 ```
 
-Back to our `main`, we can now pass in the `name` and `birthYear` to the `Student` constructor.
+Back to our `main`, we can now pass in the `name` and `joinYear` to the `RetailCustomer` constructor.
 
 ```java
-Student student = new Student("Tony", 1995, 1, "Computer Science", 2022);
+RetailCustomer retail = new RetailCustomer("Tony", 2015, 5001, "Gold");
 
-// Calling methods from the Person (Parent) class
-// student.setName("Tony");
-// student.setBirthYear(1995);
-student.greet();
-student.doWork();
+// Calling methods from the Customer (Parent) class
+// retail.setName("Tony");
+// retail.setJoinYear(2015);
+retail.displayProfile();
+retail.calculateDiscount();
 
-// Calling methods from the Student (Child) class
-System.out.println("I am studying " + student.getCourse());
-student.addGrade(80);
-student.addGrade(90);
-System.out.println("My average grade is " + student.getAverageGrade());
+// Calling methods from the RetailCustomer (Child) class
+System.out.println("Membership tier: " + retail.getMembershipTier());
+retail.addPurchase(80);
+retail.addPurchase(90);
+System.out.println("Average purchase is " + retail.getAveragePurchase());
 ```
 
 ### The `protected` access modifier
 
-In an earlier lesson we had mentioned about the `protected` access modifier. The `protected` access modifier allows the field to be accessed by the child class.
+In an earlier lesson we had mentioned the `protected` access modifier. The `protected` access modifier allows the field to be accessed by the child class.
 
-Let's add another method to `Student`.
+Let's add another method to `RetailCustomer`.
 
 ```java
-public void attendClass() {
-  System.out.println(this.name + " is attending class.");
+public void redeemPoints() {
+  System.out.println(this.name + " redeemed loyalty points.");
 }
 ```
 
-Notice that we cannot access it directly in the `Student` class. This is because the `name` field is declared in the `Person` class. We can only access it using the `getName()` method.
+Notice that we cannot access `name` directly in the `RetailCustomer` class. This is because the `name` field is declared as `private` in the `Customer` class. We can only access it using the `getName()` method.
 
 ```java
-public void attendClass() {
-  System.out.println(this.getName() + " is attending class.");
+public void redeemPoints() {
+  System.out.println(this.getName() + " redeemed loyalty points.");
 }
 ```
 
@@ -314,26 +314,26 @@ protected String name;
 
 ### 👨‍💻 Activity: Inheritance **(10 minutes)**
 
-Create a `Teacher` class that inherits from the `Person` class.
+Create a `CorporateCustomer` class that inherits from the `Customer` class.
 
-The `Teacher` class should have the following fields:
+The `CorporateCustomer` class should have the following fields:
 
 ```java
-private int teacherId;
-private String subject;
-private double salary;
+private String companyName;
+private double contractValue;
+private String accountManager;
 ```
 
 Example test code:
 
 ```java
-Teacher teacher = new Teacher("John", 1975, 1, "Mathematics", 5000);
+CorporateCustomer corporate = new CorporateCustomer("John", 2010, "Acme Pte Ltd", 250000, "Sarah Lim");
 // Calling Parent class methods
-teacher.greet();
-teacher.doWork();
+corporate.displayProfile();
+corporate.calculateDiscount();
 // Calling Child class methods
-System.out.println("I teach " + teacher.getSubject());
-System.out.println("My salary is " + teacher.getSalary());
+System.out.println("Company: " + corporate.getCompanyName());
+System.out.println("Contract value: " + corporate.getContractValue());
 ```
 
 ## Part 3: Polymorphism
@@ -380,18 +380,18 @@ System.out.println(calculator.add(1, 2, 3)); // 6
 System.out.println(calculator.add(1.5, 2.5)); // 4.0
 ```
 
-Let's **overload** the `doWork()` method in `Student` class by accepting a `String` argument.
+Let's **overload** the `calculateDiscount()` method in the `RetailCustomer` class by accepting a promotion code.
 
 ```java
-public void doWork(String work) {
-  System.out.println(this.getName() + " is doing " + work);
+public void calculateDiscount(String promoCode) {
+  System.out.println(this.getName() + " gets an extra discount with code " + promoCode + ".");
 }
 ```
 
 And run it in `main`.
 
 ```java
-student.doWork("homework");
+retail.calculateDiscount("NEWYEAR25");
 ```
 
 ### Runtime Polymorphism
@@ -402,22 +402,24 @@ It is called runtime polymorphism because the JVM determines which method to cal
 
 Overriding is useful because it allows us to define a method in the child class that has the same name and signature as the method in the parent class. This allows us to call the same method on different types of objects and get different results.
 
-Let's **override** the `doWork()` method in the `Student` class.
+Let's **override** the `calculateDiscount()` method in the `RetailCustomer` class.
 
-In the `Student` class file, right click, "Source Action", "Override/Implement Methods...".
+In the `RetailCustomer` class file, right click, "Source Action", "Override/Implement Methods...".
 
 ```java
 @Override
-public void doWork() {
-  System.out.println(this.getName() + " is studying.");
+public void calculateDiscount() {
+  System.out.println(this.getName() + " gets a 5% retail discount.");
 }
 ```
 
-Now when we run the following code, the `doWork()` method in the `Student` class will be called instead of the `doWork()` method in the `Person` class.
+Now when we run the following code, the `calculateDiscount()` method in the `RetailCustomer` class will be called instead of the one in the `Customer` class.
 
 ```java
-student.doWork();
+retail.calculateDiscount();
 ```
+
+This is the practical value of overriding. Every customer type answers the same question, "what discount do you get", but each answers it differently. Calling code does not need to know which type it is holding.
 
 #### The `@Override` annotation
 
@@ -427,16 +429,16 @@ This is because without the annotation, if we accidentally misspell the method n
 
 ```java
 // @Override
-public void doWerk() {
-  System.out.println(this.getName() + " is studying.");
+public void calculateDiscont() {
+  System.out.println(this.getName() + " gets a 5% retail discount.");
 }
 ```
 
-And then when we run the following code, the `doWork()` method in the `Person` class will be called.
+And then when we run the following code, the `calculateDiscount()` method in the `Customer` class will be called instead.
 
 ```java
-Person student = new Student("John", 2000, 12345, "Computer Science", 2020);
-student.doWork(); // John is working.
+Customer retail = new RetailCustomer("John", 2015, 5001, "Gold");
+retail.calculateDiscount(); // John gets the standard discount.
 ```
 
 #### Runtime Polymorphism with `super`
@@ -446,37 +448,39 @@ In some cases, we may want to call the parent class method from the child class,
 We can call the parent class method from the child class using the `super` keyword.
 
 ```java
-public class Student extends Person {
+public class RetailCustomer extends Customer {
   @Override
-  public void doWork() {
-    super.doWork();
-    System.out.println("I am studying.");
+  public void calculateDiscount() {
+    super.calculateDiscount();
+    System.out.println("Plus an extra 5% retail discount.");
   }
 }
 ```
 
 ### 👨‍💻 Activity: Polymorphism **(5 minutes)**
 
-Override the `doWork()` method in the `Teacher` class to say that the teacher is teaching.
+Override the `calculateDiscount()` method in the `CorporateCustomer` class to give a 15% corporate discount.
 
-Also, override the `greet()` method in the `Teacher` class to say what the teacher teaches, in addition to the original greeting.
+Also, override the `displayProfile()` method in the `CorporateCustomer` class to show the company name, in addition to the original profile output.
+
+> **Note:** In `displayProfile()`, call `super.displayProfile()` first rather than copying the parent's print statements. If the parent output changes later, your child class picks up the change automatically.
 
 Test code:
 
 ```java
-Teacher teacher = new Teacher("John", 1975, 1, "Mathematics", 5000);
-teacher.greet();
-teacher.doWork();
+CorporateCustomer corporate = new CorporateCustomer("John", 2010, "Acme Pte Ltd", 250000, "Sarah Lim");
+corporate.displayProfile();
+corporate.calculateDiscount();
 ```
 
-Example output (year shown depends on current year):
+Example output (years shown depend on the current year):
 
 ```bash
-# teacher.doWork() output
-John is teaching.
-# teacher.greet() output
-👋 Hello, my name is John and I am a 51 year old teacher.
-Also, I teach Mathematics.
+# corporate.displayProfile() output
+Customer: John, 16 years with us. Type: CorporateCustomer.
+Company account: Acme Pte Ltd.
+# corporate.calculateDiscount() output
+John gets a 15% corporate discount.
 ```
 
 ---
@@ -503,25 +507,27 @@ An abstract method is a method that is declared without an implementation. It is
 
 An abstract class cannot be instantiated. It can only be used as a superclass for other classes.
 
-In the case of our `Person` class, we can make it an abstract class because we do not intend to instantiate it. We only want to use it as a superclass for other subclasses.
+In the case of our `Customer` class, we can make it an abstract class because we do not intend to instantiate it. We only want to use it as a superclass for other subclasses. In a real system there is no such thing as a generic customer. Every customer is a retail customer, a corporate customer, or some other concrete type.
 
-We can also make the `doWork()` method `abstract` because we do not want to define the behavior of the `doWork()` method in the `Person` class. We want to define the behavior of the `doWork()` method in the child classes.
+We can also make the `calculateDiscount()` method `abstract` because we do not want to define the discount behaviour in the `Customer` class. Each child class must define its own.
 
 ```java
-public abstract class Person {
+public abstract class Customer {
   // ...
 
-  public abstract void doWork();
+  public abstract void calculateDiscount();
 }
 ```
 
-Once we declare `Person` as `abstract`, it can only be used as a superclass for other classes.
+Once we declare `Customer` as `abstract`, it can only be used as a superclass for other classes.
 
-Now when we try to instantiate the `Person` class, we will get an error.
+Now when we try to instantiate the `Customer` class, we will get an error.
 
 ```java
-Person person = new Person("Tony Stark", 2000);
+Customer customer = new Customer("Tony Stark", 2015);
 ```
+
+> **Note:** Once `calculateDiscount()` is abstract, every child class is forced to implement it. The compiler will not let you forget. That is the real benefit of an abstract method over an empty method body.
 
 ### Interfaces
 
@@ -546,7 +552,7 @@ Interfaces allow us to specify what a class must do, without specifying how it s
 
 Using interfaces allows us to define a common behaviour that can be shared among multiple classes. This is useful when we want to define a common behavior for classes that are not related to each other.
 
-For example, we might want to have a common behaviour, say `Trackable` for a `MobilePhone` as well as some other, entirely unrelated class. Two unrelated classes are not conceptually related, but yet we may need to implement a trackable behaviour for both. We can define a `Trackable` interface and have both classes implement it.
+For example, we might want to have a common behaviour, say `Trackable`, for a `MobilePhone` as well as some other, entirely unrelated class. Two unrelated classes are not conceptually related, but yet we may need to implement a trackable behaviour for both. We can define a `Trackable` interface and have both classes implement it.
 
 Create a file `LearnInterfaces.java` and code along. If you wish to do it in a single file, just omit the `public` keyword for the following interface and classes.
 
@@ -569,7 +575,7 @@ public interface Trackable {
 
 Any method declared in an interface is by default `public` and `abstract`. So, we do not need to specify the `public` and `abstract` keywords.
 
-> 📝 **Note:** Variables declared in an interface are implicitly `public static final` — meaning they are **constants**. You cannot change their value. If you try to do `MAX_TRACKING_DISTANCE = 500`, you will get a compile error.
+> 📝 **Note:** Variables declared in an interface are implicitly `public static final`, meaning they are **constants**. You cannot change their value. If you try to do `MAX_TRACKING_DISTANCE = 500`, you will get a compile error.
 
 To use the `Trackable` interface, we need to implement it in the `MobilePhone` class with the `implements` keyword.
 
@@ -599,7 +605,7 @@ phone.track();
 phone.startTracking(); // uses default method from Trackable interface
 ```
 
-Notice that `MobilePhone` can call `startTracking()` without implementing it — it inherits the default implementation from the interface.
+Notice that `MobilePhone` can call `startTracking()` without implementing it. It inherits the default implementation from the interface.
 
 A class can also **override** the default method with its own implementation:
 
@@ -641,6 +647,8 @@ Now, the classes that implement the interface can choose to override the default
 ### 👨‍💻 Activity: Abstraction **(20 minutes)**
 
 In this activity, you will practice working with abstract classes and interfaces.
+
+> **Note:** This activity uses a vehicle model rather than the customer model. That is deliberate. Abstraction is not tied to one domain, and vehicles map cleanly onto multiple interfaces.
 
 Create an `abstract` class `Vehicle`. There will be 2 child classes `Car` and `ElectricCar` that will extend the `Vehicle` class.
 
@@ -737,13 +745,13 @@ Sometimes it is easier to model real-world objects using composition than trying
 
 For example, a car is composed of an engine, wheels, seats, etc. A car is not a type of engine or a type of wheel. A car has an engine and wheels.
 
-Inheritance defines a **IS-A** relationship. Composition defines a **HAS-A** relationship. A car **IS-A** vehicle. A car **HAS-A** engine.
+Inheritance defines an **IS-A** relationship. Composition defines a **HAS-A** relationship. A car **IS-A** vehicle. A car **HAS-A** engine.
 
-Let's say we have a `Radio` class now. One way for our `Car` and `ElectricCar` — the same `Car` and `ElectricCar` classes we already built in the Abstraction activity — to have a radio is to put it in the `Vehicle` class. But not all vehicles have a radio.
+Let's say we have a `Radio` class now. One way for our `Car` and `ElectricCar`, the same `Car` and `ElectricCar` classes we already built in the Abstraction activity, to have a radio is to put it in the `Vehicle` class. But not all vehicles have a radio.
 
 Instead, we can create a `Radio` class and add it in the `Car` and `ElectricCar` classes.
 
-We do not want to define the `Radio` in the `Vehicle` class as that would mean all child classes would have a `Radio`. We would also not want to define the Radio separately in every subclass that needs one, repeating the same field and constructor logic.
+We do not want to define the `Radio` in the `Vehicle` class as that would mean all child classes would have a `Radio`. We would also not want to define the `Radio` separately in every subclass that needs one, repeating the same field and constructor logic.
 
 ```java
 public class Radio {
@@ -771,7 +779,7 @@ public class Radio {
 }
 ```
 
-Now let's add a `Radio` field to our existing `Car` class from the Abstraction activity — the one that already `extends Vehicle` and `implements FuelTank`. Notice we are not creating a new `Car` class; we are adding to the one we already have.
+Now let's add a `Radio` field to our existing `Car` class from the Abstraction activity, the one that already `extends Vehicle` and `implements FuelTank`. Notice we are not creating a new `Car` class. We are adding to the one we already have.
 
 ```java
 public class Car extends Vehicle implements FuelTank {
@@ -812,7 +820,7 @@ public class Car extends Vehicle implements FuelTank {
 }
 ```
 
-The same applies to `ElectricCar` — add a `Radio` field to the existing class from the Abstraction activity:
+The same applies to `ElectricCar`. Add a `Radio` field to the existing class from the Abstraction activity:
 
 ```java
 public class ElectricCar extends Vehicle implements BatteryPack {
@@ -852,7 +860,7 @@ public class ElectricCar extends Vehicle implements BatteryPack {
 }
 ```
 
-Notice that this same `Car` class now uses inheritance (`extends Vehicle`), an interface (`implements FuelTank`), **and** composition (`Radio` field) all at once. These are not competing techniques — a single class can combine all three.
+Notice that this same `Car` class now uses inheritance (`extends Vehicle`), an interface (`implements FuelTank`), **and** composition (`Radio` field) all at once. These are not competing techniques. A single class can combine all three.
 
 ---
 
