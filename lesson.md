@@ -1,41 +1,30 @@
-# Lesson: Object-Oriented Programming — Encapsulation, Inheritance, Polymorphism, Abstraction
+# Lesson: Object-Oriented Programming — Inheritance, Polymorphism, Abstraction, Composition
 
 ## Lesson Overview
 
-This lesson deepens OOP fundamentals by applying the four pillars, encapsulation, inheritance, polymorphism, and abstraction, plus composition. You will implement access control, constructors, `super`/`this`, `protected`, interfaces vs. abstract classes, method overloading/overriding, and design HAS-A vs. IS-A relationships with concise, practical examples.
-
-The `Customer` class from the previous lesson is the starting point here. You will grow it into a small class hierarchy of customer types, which is the same shape of model you will later expose through a REST API.
+This lesson builds on the previous lesson to complete the four pillars of OOP. Encapsulation was covered in depth in the previous lesson, so today focuses on the remaining three pillars, inheritance, polymorphism, and abstraction, plus composition. You will grow the `Customer` class into a hierarchy of customer types, which is the same shape of model you will later expose through a REST API.
 
 ## Lesson Objectives
 
 - Apply inheritance using `extends`, `super`, and `protected` to build class hierarchies.
-- Differentiate method overloading (compile-time) and overriding (runtime polymorphism).
+- Apply method overriding to achieve runtime polymorphism.
 - Design abstractions using abstract classes and interfaces.
 - Model HAS-A relationships using composition.
 
 ## Object Oriented Programming
 
-Object Oriented Programming (OOP) is a programming paradigm that is based on the concept of objects. It is a way of organizing code into objects that have state (attributes) and behavior (methods).
+Object Oriented Programming (OOP) is based on 4 principles:
 
-OOP is based on 4 principles:
-
-- Encapsulation
+- Encapsulation (covered in the previous lesson)
 - Inheritance
 - Polymorphism
 - Abstraction
 
-## Part 1: Encapsulation
+## Part 1: The Starting Point — The Customer Class
 
-### What is Encapsulation?
+Create a new folder for this lesson. We will rebuild `Customer` from scratch as a simpler version with just two fields, because today is about how classes relate to each other, not about the class itself.
 
-As explained in the previous lesson, encapsulation is
-
-- Bundling of behaviours and attributes on a single object
-- Hiding fields and some methods from public access
-
-By setting fields to private, we are hiding them from public access. We can then provide public methods to access and modify the fields.
-
-Let's define a `Customer` class. This is the same idea as the class you built in the previous lesson, with validation added.
+This class applies everything from the previous lesson: private fields, validation, and a private helper method.
 
 ```java
 public class Customer {
@@ -100,39 +89,20 @@ public class Customer {
 }
 ```
 
-In this way, we can protect the fields from accidental changes and misuse.
+Quick notes, all of this is applying the previous lesson:
 
-For example we could prevent setting an impossible join year. Notice that:
+1. `validateJoinYear()` is `private`. It is an internal helper, not part of the public interface.
+2. Both the constructor and the setter call it, so validation applies on every path in.
+3. `displayProfile()` checks whether `joinYear` is `0` (the default) to avoid printing a nonsense number of years.
+4. The current year is read using `java.time.Year.now().getValue()` so the calculation is always correct.
 
-1. The `validateJoinYear()` method is `private`. It is an internal helper, not exposed to users.
-2. Both the **constructor** and the **setter** call `validateJoinYear()`, so validation is always applied regardless of how the object is created or updated.
-3. The `displayProfile()` method checks if `joinYear` is `0` (the default), to avoid printing a nonsense number of years if an invalid value was rejected.
-4. The current year is read using `java.time.Year.now().getValue()` rather than hardcoded, so the calculation is always correct.
-
-If the `joinYear` field were public, we could not prevent the user from setting an invalid value.
-
-Create `App.java` and test this.
+Create `App.java` and test it.
 
 ```java
 Customer customer = new Customer("Tony Stark", 2015);
 customer.setJoinYear(0);
 customer.displayProfile();
 customer.calculateDiscount();
-```
-
-The users of our public methods do not need to know how the method works. Even if we were to make some internal changes, the user would not be affected.
-
-For example, if we were to change the criteria for a valid join year, we would only need to change the `validateJoinYear` method. The user would not need to change their code.
-
-```java
-private boolean validateJoinYear(int joinYear) {
-  // if (joinYear < 1990 || joinYear > java.time.Year.now().getValue()) {
-  if (joinYear < 2000 || joinYear > java.time.Year.now().getValue()) {
-    System.out.println("Invalid join year.");
-    return false;
-  }
-  return true;
-}
 ```
 
 ---
@@ -273,13 +243,9 @@ Back to our `main`, we can now pass in the `name` and `joinYear` to the `RetailC
 ```java
 RetailCustomer retail = new RetailCustomer("Tony", 2015, 5001, "Gold");
 
-// Calling methods from the Customer (Parent) class
-// retail.setName("Tony");
-// retail.setJoinYear(2015);
 retail.displayProfile();
 retail.calculateDiscount();
 
-// Calling methods from the RetailCustomer (Child) class
 System.out.println("Membership tier: " + retail.getMembershipTier());
 retail.addPurchase(80);
 retail.addPurchase(90);
@@ -336,6 +302,8 @@ System.out.println("Company: " + corporate.getCompanyName());
 System.out.println("Contract value: " + corporate.getContractValue());
 ```
 
+---
+
 ## Part 3: Polymorphism
 
 ### What is Polymorphism?
@@ -344,43 +312,12 @@ Polymorphism means many forms i.e. the ability of a method to have different beh
 
 There are 2 types of polymorphism:
 
-1. Static or compile-time polymorphism
-2. Dynamic or run-time polymorphism
+1. Static or compile-time polymorphism, which is **method overloading**. You have already used this with methods and with constructors, so we will only recap it briefly.
+2. Dynamic or run-time polymorphism, which is **method overriding**. This is the focus of this part.
 
-### Compile-time Polymorphism
+### Quick recap: Method Overloading
 
-Compile-time polymorphism is also known as **method overloading**. It occurs when there are multiple methods with the same name but different parameters.
-
-It is called compile-time polymorphism because the compiler determines which method to call based on the number and type of arguments passed in.
-
-Create a new `Calculator.java` file and code along.
-
-```java
-public class Calculator {
-  public int add(int num1, int num2) {
-    return num1 + num2;
-  }
-
-  public int add(int num1, int num2, int num3) {
-    return num1 + num2 + num3;
-  }
-
-  public double add(double num1, double num2) {
-    return num1 + num2;
-  }
-}
-```
-
-The `add()` method is overloaded 3 times. The compiler will determine which method to call based on the number and type of arguments passed in.
-
-```java
-Calculator calculator = new Calculator();
-System.out.println(calculator.add(1, 2)); // 3
-System.out.println(calculator.add(1, 2, 3)); // 6
-System.out.println(calculator.add(1.5, 2.5)); // 4.0
-```
-
-Let's **overload** the `calculateDiscount()` method in the `RetailCustomer` class by accepting a promotion code.
+Overloading is multiple methods with the same name but different parameters. The compiler decides which one to call based on the arguments. As a quick example on our existing class, we can overload `calculateDiscount()` in `RetailCustomer` to accept a promotion code.
 
 ```java
 public void calculateDiscount(String promoCode) {
@@ -388,13 +325,13 @@ public void calculateDiscount(String promoCode) {
 }
 ```
 
-And run it in `main`.
-
 ```java
 retail.calculateDiscount("NEWYEAR25");
 ```
 
-### Runtime Polymorphism
+Same method name, different parameter list. That is all overloading is. Now on to the important one.
+
+### Runtime Polymorphism: Method Overriding
 
 Runtime polymorphism is also known as **method overriding**. It occurs when a child class overrides a method of the parent class.
 
@@ -489,15 +426,12 @@ John gets a 15% corporate discount.
 
 Abstraction is when we generalize a set of characteristics and behaviors into a class.
 
-For example, animals, vehicles, products, etc. are all abstract concepts. They are not tangible objects that we can touch or see. Of course, we know examples of vehicles such as cars, vans, lorries, buses but these are all more concrete objects. But it would be hard to say, draw a vehicle, without knowing what type of vehicle we are talking about. So, we say that a vehicle is an abstract concept.
-
-Abstraction helps us to think about things as groups and generalize their functionalities.
+For example, animals, vehicles, products, etc. are all abstract concepts. We know examples of vehicles such as cars, vans, lorries, buses but it would be hard to draw a "vehicle" without knowing what type of vehicle it is. So a vehicle is an abstract concept.
 
 We can do abstraction in Java using:
 
 - Abstract classes
 - Interfaces
-- Superclasses
 
 ### Abstract Classes
 
@@ -507,7 +441,7 @@ An abstract method is a method that is declared without an implementation. It is
 
 An abstract class cannot be instantiated. It can only be used as a superclass for other classes.
 
-In the case of our `Customer` class, we can make it an abstract class because we do not intend to instantiate it. We only want to use it as a superclass for other subclasses. In a real system there is no such thing as a generic customer. Every customer is a retail customer, a corporate customer, or some other concrete type.
+In the case of our `Customer` class, we can make it an abstract class because we do not intend to instantiate it. In a real system there is no such thing as a generic customer. Every customer is a retail customer, a corporate customer, or some other concrete type.
 
 We can also make the `calculateDiscount()` method `abstract` because we do not want to define the discount behaviour in the `Customer` class. Each child class must define its own.
 
@@ -533,26 +467,11 @@ Customer customer = new Customer("Tony Stark", 2015);
 
 An **interface** is a similar concept to an abstract class. It is declared with the `interface` keyword. Unlike abstract classes though, an interface cannot have instance variables. From Java 8 onwards, it can also have default methods and static methods.
 
-An interface can be named in different ways depending on what it represents:
-
-1. **Capability/Behavior interfaces** - Often named with the suffix `able` to indicate what a class can do:
-
-   - Examples: `Drivable`, `Runnable`, `Comparable`, `Trackable`
-
-2. **Contract/Type interfaces** - Named as nouns to define what something is:
-
-   - Examples: `List`, `Map`, `Set`, `Building`, `Vehicle`
-
-3. **Service interfaces** - Named to represent services or operations:
-   - Examples: `Repository`, `Service`, `Handler`, `Manager`
-
-The key is that interface names should clearly communicate the contract or capability they define.
-
 Interfaces allow us to specify what a class must do, without specifying how it should do it.
 
-Using interfaces allows us to define a common behaviour that can be shared among multiple classes. This is useful when we want to define a common behavior for classes that are not related to each other.
+Using interfaces allows us to define a common behaviour that can be shared among multiple classes, even classes that are completely unrelated to each other.
 
-For example, we might want to have a common behaviour, say `Trackable`, for a `MobilePhone` as well as some other, entirely unrelated class. Two unrelated classes are not conceptually related, but yet we may need to implement a trackable behaviour for both. We can define a `Trackable` interface and have both classes implement it.
+For example, we might want a common behaviour, say `Trackable`, for a `MobilePhone` as well as some other, entirely unrelated class. We can define a `Trackable` interface and have both classes implement it.
 
 Create a file `LearnInterfaces.java` and code along. If you wish to do it in a single file, just omit the `public` keyword for the following interface and classes.
 
@@ -563,7 +482,6 @@ public interface Trackable {
   void track();
 
   // Variables in interfaces are implicitly public, static and final (constants)
-  // They cannot be changed once set
   int MAX_TRACKING_DISTANCE = 1000; // same as: public static final int MAX_TRACKING_DISTANCE = 1000;
 
   // Default method - has a body, implementing class can use as-is or override (Java 8+)
@@ -573,18 +491,13 @@ public interface Trackable {
 }
 ```
 
-Any method declared in an interface is by default `public` and `abstract`. So, we do not need to specify the `public` and `abstract` keywords.
+Any method declared in an interface is by default `public` and `abstract`, so we do not need to specify those keywords.
 
-> 📝 **Note:** Variables declared in an interface are implicitly `public static final`, meaning they are **constants**. You cannot change their value. If you try to do `MAX_TRACKING_DISTANCE = 500`, you will get a compile error.
-
-To use the `Trackable` interface, we need to implement it in the `MobilePhone` class with the `implements` keyword.
+To use the `Trackable` interface, we implement it in the `MobilePhone` class with the `implements` keyword.
 
 ```java
 public class MobilePhone implements Trackable {
   private String model;
-
-  public MobilePhone() {
-  }
 
   public MobilePhone(String model) {
     this.model = model;
@@ -605,44 +518,15 @@ phone.track();
 phone.startTracking(); // uses default method from Trackable interface
 ```
 
-Notice that `MobilePhone` can call `startTracking()` without implementing it. It inherits the default implementation from the interface.
+Notice that `MobilePhone` can call `startTracking()` without implementing it. It inherits the default implementation from the interface. A class can also **override** a default method with its own implementation.
 
-A class can also **override** the default method with its own implementation:
+Unlike inheritance, a class can implement multiple interfaces. We will use that in the activity below.
 
-```java
-public class MobilePhone implements Trackable {
-  // ...
+### When to use which
 
-  @Override
-  public void track() {
-    System.out.println("Tracking mobile phone " + this.model + ".");
-  }
+Use an **interface** when you want to define a contract that any class can implement, regardless of its position in the class hierarchy, or when a class needs multiple behaviours (a class can implement many interfaces but extend only one class).
 
-  // Overriding the default method with a custom implementation
-  @Override
-  public void startTracking() {
-    System.out.println("Phone GPS tracking started for " + this.model + ".");
-  }
-}
-```
-
-Unlike inheritance, a class can implement multiple interfaces. Let's define a `Drivable` interface, which we will use shortly.
-
-```java
-public interface Drivable {
-  void drive();
-  void stop();
-
-  // Java 8 onwards - default method
-  default void honk() {
-    System.out.println("Honk!");
-  }
-}
-```
-
-Default methods were added in Java 8. This was because previously it was not possible to add new methods to an interface without breaking the existing implementations of the interface.
-
-Now, the classes that implement the interface can choose to override the default method with their own implementation, or they can simply use the default implementation. We'll see `Drivable` used together with `Trackable` on the same class shortly, in the Abstraction activity below.
+Use an **abstract class** when you want to provide a common base implementation and shared fields for a group of closely related classes.
 
 ### 👨‍💻 Activity: Abstraction **(20 minutes)**
 
@@ -650,7 +534,7 @@ In this activity, you will practice working with abstract classes and interfaces
 
 > **Note:** This activity uses a vehicle model rather than the customer model. That is deliberate. Abstraction is not tied to one domain, and vehicles map cleanly onto multiple interfaces.
 
-Create an `abstract` class `Vehicle`. There will be 2 child classes `Car` and `ElectricCar` that will extend the `Vehicle` class.
+Create an `abstract` class `Vehicle`. Create a child class `Car` that extends the `Vehicle` class.
 
 ```java
 public abstract class Vehicle {
@@ -660,7 +544,7 @@ public abstract class Vehicle {
 }
 ```
 
-There are 4 interfaces that can be implemented: `Drivable`, `Trackable`, `FuelTank` and `BatteryPack`.
+There are 4 interfaces:
 
 ```java
 interface Drivable {
@@ -683,7 +567,7 @@ interface BatteryPack {
 }
 ```
 
-All vehicles are `Drivable` and `Trackable`. A `Car` should implement `FuelTank` and an `ElectricCar` should implement `BatteryPack`.
+All vehicles are `Drivable` and `Trackable`. A `Car` should also implement `FuelTank`.
 
 Test code:
 
@@ -694,7 +578,15 @@ car.drive();
 car.stop();
 car.fill();
 car.getFuelLevel();
+```
 
+### Optional challenge
+
+Create an `ElectricCar` class that extends `Vehicle` and implements `Drivable`, `Trackable` and `BatteryPack`.
+
+Test code:
+
+```java
 ElectricCar electricCar = new ElectricCar("Tesla");
 electricCar.track();
 electricCar.drive();
@@ -703,69 +595,25 @@ electricCar.charge();
 electricCar.getCharge();
 ```
 
-### Interfaces vs Abstract Classes
-
-You may have noticed that interfaces can be nouns, just like abstract classes. So, when should we use an interface and when should we use an abstract class?
-
-```java
-public interface Vehicle {
-  void start();
-  void stop();
-}
-
-public abstract class Vehicle {
-  abstract void start();
-  abstract void stop();
-}
-```
-
-Use an interface when:
-
-- You want to define a contract that can be implemented by any class, regardless of its position in the class hierarchy.
-- You need to implement multiple behaviors in a class, as a class can implement multiple interfaces.
-
-Use an abstract class when:
-
-- You want to provide a common base implementation for a group of related classes.
-- You need instance variables or methods that can be shared among subclasses.
+---
 
 ## Part 5: Composition
 
-Another concept of OOP is composition. Building a class out of simpler classes is called composition. It is a way to combine simple objects or data types into more complex ones.
-
-To prefer **composition over inheritance** is an OOP principle that means that we should prefer to compose classes rather than inherit from them.
-
-For more info: https://en.wikipedia.org/wiki/Composition_over_inheritance
-
-Composition allows us to reuse code without having to inherit from a class. Inheritance is a tightly coupled relationship. If we inherit from a class, we are tightly coupled to that class. If the superclass changes, the subclass will also be affected.
-
-Composition is a loosely coupled relationship. If we compose a class, we are not tightly coupled to that class. If the composed class changes, the class that uses it will not be affected.
-
-Sometimes it is easier to model real-world objects using composition than trying to find commonalities between them and using inheritance.
-
-For example, a car is composed of an engine, wheels, seats, etc. A car is not a type of engine or a type of wheel. A car has an engine and wheels.
+Another concept of OOP is composition. Building a class out of simpler classes is called composition.
 
 Inheritance defines an **IS-A** relationship. Composition defines a **HAS-A** relationship. A car **IS-A** vehicle. A car **HAS-A** engine.
 
-Let's say we have a `Radio` class now. One way for our `Car` and `ElectricCar`, the same `Car` and `ElectricCar` classes we already built in the Abstraction activity, to have a radio is to put it in the `Vehicle` class. But not all vehicles have a radio.
+To prefer **composition over inheritance** is a well known OOP principle. Inheritance is a tightly coupled relationship, if the superclass changes, every subclass is affected. Composition is loosely coupled, if the composed class changes internally, the class that uses it is not affected.
 
-Instead, we can create a `Radio` class and add it in the `Car` and `ElectricCar` classes.
+For more info: https://en.wikipedia.org/wiki/Composition_over_inheritance
 
-We do not want to define the `Radio` in the `Vehicle` class as that would mean all child classes would have a `Radio`. We would also not want to define the `Radio` separately in every subclass that needs one, repeating the same field and constructor logic.
+Let's say we have a `Radio` class. Not all vehicles have a radio, so we should not put it in the `Vehicle` class. Instead, we add a `Radio` field to the `Car` class.
 
 ```java
 public class Radio {
   private String model;
 
   public Radio(String model) {
-    this.model = model;
-  }
-
-  public String getModel() {
-    return this.model;
-  }
-
-  public void setModel(String model) {
     this.model = model;
   }
 
@@ -779,7 +627,7 @@ public class Radio {
 }
 ```
 
-Now let's add a `Radio` field to our existing `Car` class from the Abstraction activity, the one that already `extends Vehicle` and `implements FuelTank`. Notice we are not creating a new `Car` class. We are adding to the one we already have.
+Now we add a `Radio` field to our existing `Car` class from the Abstraction activity, the one that already `extends Vehicle` and `implements FuelTank`. Notice we are not creating a new `Car` class. We are adding to the one we already have.
 
 ```java
 public class Car extends Vehicle implements FuelTank {
@@ -792,26 +640,7 @@ public class Car extends Vehicle implements FuelTank {
     this.radio = new Radio("Sony"); // Car creates and owns its own Radio
   }
 
-  @Override
-  public void drive() {
-    System.out.println(this.getMake() + " car is driving.");
-  }
-
-  @Override
-  public void stop() {
-    System.out.println(this.getMake() + " car is stopping.");
-  }
-
-  @Override
-  public void fill() {
-    this.fuelLevel = 100;
-    System.out.println(this.getMake() + " fuel tank filled.");
-  }
-
-  @Override
-  public double getFuelLevel() {
-    return this.fuelLevel;
-  }
+  // ... existing drive(), stop(), fill(), getFuelLevel() methods stay the same
 
   // NEW - delegating to the composed Radio object
   public void playRadio() {
@@ -820,47 +649,9 @@ public class Car extends Vehicle implements FuelTank {
 }
 ```
 
-The same applies to `ElectricCar`. Add a `Radio` field to the existing class from the Abstraction activity:
-
-```java
-public class ElectricCar extends Vehicle implements BatteryPack {
-  private double charge;
-  private Radio radio; // NEW - ElectricCar HAS-A Radio
-
-  public ElectricCar(String make) {
-    super(make);
-    this.charge = 0;
-    this.radio = new Radio("Sony");
-  }
-
-  @Override
-  public void drive() {
-    System.out.println(this.getMake() + " electric car is driving.");
-  }
-
-  @Override
-  public void stop() {
-    System.out.println(this.getMake() + " electric car is stopping.");
-  }
-
-  @Override
-  public void charge() {
-    this.charge = 100;
-    System.out.println(this.getMake() + " battery charged.");
-  }
-
-  @Override
-  public double getCharge() {
-    return this.charge;
-  }
-
-  public void playRadio() {
-    this.radio.play();
-  }
-}
-```
-
 Notice that this same `Car` class now uses inheritance (`extends Vehicle`), an interface (`implements FuelTank`), **and** composition (`Radio` field) all at once. These are not competing techniques. A single class can combine all three.
+
+> **Note:** Composition is the shape of every Spring application you will build later in this module. A service class holds a repository as a field, a controller holds a service as a field. That is composition, a class built out of other classes it HAS, rather than classes it IS.
 
 ---
 
